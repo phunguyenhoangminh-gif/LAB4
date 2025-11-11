@@ -1,0 +1,9 @@
+led_display.c:11:6:setRed	16	static
+led_display.c:23:6:setYellow	16	static
+led_display.c:35:6:setGreen	16	static
+led_display.c:47:6:turnOffAllLEDs	8	static
+led_display.c:60:6:clear7SEG	8	static
+led_display.c:70:6:display7SEG	16	static
+led_display.c:147:6:update7SEG	16	static
+led_display.c:187:6:updateLEDBuffer	16	static
+led_display.c:194:6:scanLED	8	static
