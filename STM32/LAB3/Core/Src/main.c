@@ -22,9 +22,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "scheduler.h"
 #include "global.h"
 #include "fsm_automatic.h"
 #include "fsm_manual.h"
+#include "fsm_mode.h"
+#include "tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,58 +94,25 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  SCH_Init();
   HAL_TIM_Base_Start_IT(&htim2);
-  status = INIT;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   setTimer(3, 125);
   setTimer(4, 1000);
+
+  SCH_Add_Task(timerRun, 0, 1);
+  SCH_Add_Task(getKeyInput, 1, 1);
+  SCH_Add_Task(scanLED, 2, 1);
+  SCH_Add_Task(task_led_blinky, 3, 1);
+  SCH_Add_Task(fsm_mode_run, 4, 5);
+  SCH_Add_Task(fsm_automatic_run, 5, 5);
+  SCH_Add_Task(fsm_manual_run, 6, 5);
   while (1)
   {
-	  if (isTimerExpired(4)) {
-		  setTimer(4, 1000);
-		  HAL_GPIO_TogglePin(LBLINKY_GPIO_Port, LBLINKY_Pin);
-	  }
-	  if (isButtonPressed(0) == 1) {
-		  if (status == INIT || (status >= AUTO_RED_GREEN && status <= AUTO_AMBER_RED)) {
-			  status = MAN_RED;
-			  turnOffAllLEDs();
-			  temp_red = 1;
-			  temp_amber = 1;
-			  temp_green = 1;
-			  setTimer(2, 500);
-			  updateLEDBuffer(2, temp_red);
-		  }
-		  else if (status == MAN_RED) {
-			  status = MAN_AMBER;
-			  turnOffAllLEDs();
-			  updateLEDBuffer(3, temp_amber);
-		  }
-		  else if (status == MAN_AMBER) {
-			  status = MAN_GREEN;
-			  turnOffAllLEDs();
-			  updateLEDBuffer(4, temp_green);
-		  }
-		  else if (status == MAN_GREEN) {
-			  checkTrafficTime();
-			  temp_red = 1;
-			  temp_amber = 1;
-			  temp_green = 1;
-			  status = INIT;
-			  turnOffAllLEDs();
-		  }
-	  }
-
-	  if (status == INIT || (status >= AUTO_RED_GREEN && status <= AUTO_AMBER_RED)) {
-		  fsm_automatic_run();
-	  }
-	  else if (status >= MAN_RED && status <= MAN_GREEN) {
-		  fsm_manual_run();
-	  }
-
-	  scanLED();
+	  SCH_Dispatch_Tasks();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -283,8 +253,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM2) {
-        timerRun();
-        getKeyInput();
+//        timerRun();
+//        getKeyInput();
+    	SCH_Update();
     }
 }
 /* USER CODE END 4 */
