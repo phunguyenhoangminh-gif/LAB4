@@ -7,14 +7,6 @@
 
 #include "scheduler.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define INTERRUPT_CYCLE			10 // 10 milliseconds
-#define PRESCALER				64
-#define COUNTER_START 			65536 - INTERRUPT_CYCLE * 1000 * 16 / 64	// 16M is Core Clock
-
 typedef struct {
 	void ( * pTask)(void);
 	uint32_t Delay;
@@ -154,7 +146,3 @@ static uint32_t Get_New_Task_ID(void){
 	}
 	return newTaskID;
 }
-
-#ifdef __cplusplus
-}
-#endif

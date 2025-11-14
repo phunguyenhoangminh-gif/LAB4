@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_ranges 000008f8  00000000  00000000  0002a820  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  0001630d  00000000  00000000  0002b118  2**0
+ 16 .debug_macro  000162fb  00000000  00000000  0002b118  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000a027  00000000  00000000  00041425  2**0
+ 17 .debug_line   0000a027  00000000  00000000  00041413  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00082029  00000000  00000000  0004b44c  2**0
+ 18 .debug_str    00082005  00000000  00000000  0004b43a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  000cd475  2**0
+ 19 .comment      00000053  00000000  00000000  000cd43f  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002778  00000000  00000000  000cd4c8  2**2
+ 20 .debug_frame  00002778  00000000  00000000  000cd494  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -77,43 +77,86 @@ Disassembly of section .text:
  8000148:	080021a8 	.word	0x080021a8
 
 0800014c <main>:
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
  800014c:	b580      	push	{r7, lr}
  800014e:	af00      	add	r7, sp, #0
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
  8000150:	f000 fd2a 	bl	8000ba8 <HAL_Init>
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
  8000154:	f000 f840 	bl	80001d8 <SystemClock_Config>
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
  8000158:	f000 f8c6 	bl	80002e8 <MX_GPIO_Init>
+  MX_TIM2_Init();
  800015c:	f000 f878 	bl	8000250 <MX_TIM2_Init>
+  /* USER CODE BEGIN 2 */
+  SCH_Init();
  8000160:	f000 f972 	bl	8000448 <SCH_Init>
+  HAL_TIM_Base_Start_IT(&htim2);
  8000164:	4814      	ldr	r0, [pc, #80]	; (80001b8 <main+0x6c>)
  8000166:	f001 fc67 	bl	8001a38 <HAL_TIM_Base_Start_IT>
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  SCH_Add_Task(Task_BlinkyLED, 50, 50);
  800016a:	2232      	movs	r2, #50	; 0x32
  800016c:	2132      	movs	r1, #50	; 0x32
  800016e:	4813      	ldr	r0, [pc, #76]	; (80001bc <main+0x70>)
  8000170:	f000 f9dc 	bl	800052c <SCH_Add_Task>
+  SCH_Add_Task(Task_500ms, 50, 50);     // 0.5s
  8000174:	2232      	movs	r2, #50	; 0x32
  8000176:	2132      	movs	r1, #50	; 0x32
  8000178:	4811      	ldr	r0, [pc, #68]	; (80001c0 <main+0x74>)
  800017a:	f000 f9d7 	bl	800052c <SCH_Add_Task>
+  SCH_Add_Task(Task_1000ms, 100, 100);  // 1.0s
  800017e:	2264      	movs	r2, #100	; 0x64
  8000180:	2164      	movs	r1, #100	; 0x64
  8000182:	4810      	ldr	r0, [pc, #64]	; (80001c4 <main+0x78>)
  8000184:	f000 f9d2 	bl	800052c <SCH_Add_Task>
+  SCH_Add_Task(Task_1500ms, 150, 150);  // 1.5s
  8000188:	2296      	movs	r2, #150	; 0x96
  800018a:	2196      	movs	r1, #150	; 0x96
  800018c:	480e      	ldr	r0, [pc, #56]	; (80001c8 <main+0x7c>)
  800018e:	f000 f9cd 	bl	800052c <SCH_Add_Task>
+  SCH_Add_Task(Task_2000ms, 200, 200);  // 2.0s
  8000192:	22c8      	movs	r2, #200	; 0xc8
  8000194:	21c8      	movs	r1, #200	; 0xc8
  8000196:	480d      	ldr	r0, [pc, #52]	; (80001cc <main+0x80>)
  8000198:	f000 f9c8 	bl	800052c <SCH_Add_Task>
+  SCH_Add_Task(Task_2500ms, 250, 250);  // 2.5s
  800019c:	22fa      	movs	r2, #250	; 0xfa
  800019e:	21fa      	movs	r1, #250	; 0xfa
  80001a0:	480b      	ldr	r0, [pc, #44]	; (80001d0 <main+0x84>)
  80001a2:	f000 f9c3 	bl	800052c <SCH_Add_Task>
+
+  SCH_Add_Task(One_Shot_Task, 300, 0);
  80001a6:	2200      	movs	r2, #0
  80001a8:	f44f 7196 	mov.w	r1, #300	; 0x12c
  80001ac:	4809      	ldr	r0, [pc, #36]	; (80001d4 <main+0x88>)
  80001ae:	f000 f9bd 	bl	800052c <SCH_Add_Task>
+  while (1)
+  {
+	  SCH_Dispatch_Tasks();
  80001b2:	f000 fc05 	bl	80009c0 <SCH_Dispatch_Tasks>
  80001b6:	e7fc      	b.n	80001b2 <main+0x66>
  80001b8:	200000f8 	.word	0x200000f8
@@ -126,14 +169,22 @@ Disassembly of section .text:
  80001d4:	08000425 	.word	0x08000425
 
 080001d8 <SystemClock_Config>:
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
+{
  80001d8:	b580      	push	{r7, lr}
  80001da:	b090      	sub	sp, #64	; 0x40
  80001dc:	af00      	add	r7, sp, #0
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
  80001de:	f107 0318 	add.w	r3, r7, #24
  80001e2:	2228      	movs	r2, #40	; 0x28
  80001e4:	2100      	movs	r1, #0
  80001e6:	4618      	mov	r0, r3
  80001e8:	f001 ffd6 	bl	8002198 <memset>
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
  80001ec:	1d3b      	adds	r3, r7, #4
  80001ee:	2200      	movs	r2, #0
  80001f0:	601a      	str	r2, [r3, #0]
@@ -141,31 +192,53 @@ Disassembly of section .text:
  80001f4:	609a      	str	r2, [r3, #8]
  80001f6:	60da      	str	r2, [r3, #12]
  80001f8:	611a      	str	r2, [r3, #16]
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
  80001fa:	2302      	movs	r3, #2
  80001fc:	61bb      	str	r3, [r7, #24]
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
  80001fe:	2301      	movs	r3, #1
  8000200:	62bb      	str	r3, [r7, #40]	; 0x28
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
  8000202:	2310      	movs	r3, #16
  8000204:	62fb      	str	r3, [r7, #44]	; 0x2c
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
  8000206:	2300      	movs	r3, #0
  8000208:	637b      	str	r3, [r7, #52]	; 0x34
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
  800020a:	f107 0318 	add.w	r3, r7, #24
  800020e:	4618      	mov	r0, r3
  8000210:	f000 ffe6 	bl	80011e0 <HAL_RCC_OscConfig>
  8000214:	4603      	mov	r3, r0
  8000216:	2b00      	cmp	r3, #0
  8000218:	d001      	beq.n	800021e <SystemClock_Config+0x46>
+  {
+    Error_Handler();
  800021a:	f000 f90f 	bl	800043c <Error_Handler>
+  }
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
  800021e:	230f      	movs	r3, #15
  8000220:	607b      	str	r3, [r7, #4]
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
  8000222:	2300      	movs	r3, #0
  8000224:	60bb      	str	r3, [r7, #8]
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
  8000226:	2300      	movs	r3, #0
  8000228:	60fb      	str	r3, [r7, #12]
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
  800022a:	2300      	movs	r3, #0
  800022c:	613b      	str	r3, [r7, #16]
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
  800022e:	2300      	movs	r3, #0
  8000230:	617b      	str	r3, [r7, #20]
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
  8000232:	1d3b      	adds	r3, r7, #4
  8000234:	2100      	movs	r1, #0
  8000236:	4618      	mov	r0, r3
@@ -173,7 +246,11 @@ Disassembly of section .text:
  800023c:	4603      	mov	r3, r0
  800023e:	2b00      	cmp	r3, #0
  8000240:	d001      	beq.n	8000246 <SystemClock_Config+0x6e>
+  {
+    Error_Handler();
  8000242:	f000 f8fb 	bl	800043c <Error_Handler>
+  }
+}
  8000246:	bf00      	nop
  8000248:	3740      	adds	r7, #64	; 0x40
  800024a:	46bd      	mov	sp, r7
@@ -181,45 +258,74 @@ Disassembly of section .text:
 	...
 
 08000250 <MX_TIM2_Init>:
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
  8000250:	b580      	push	{r7, lr}
  8000252:	b086      	sub	sp, #24
  8000254:	af00      	add	r7, sp, #0
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
  8000256:	f107 0308 	add.w	r3, r7, #8
  800025a:	2200      	movs	r2, #0
  800025c:	601a      	str	r2, [r3, #0]
  800025e:	605a      	str	r2, [r3, #4]
  8000260:	609a      	str	r2, [r3, #8]
  8000262:	60da      	str	r2, [r3, #12]
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
  8000264:	463b      	mov	r3, r7
  8000266:	2200      	movs	r2, #0
  8000268:	601a      	str	r2, [r3, #0]
  800026a:	605a      	str	r2, [r3, #4]
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
  800026c:	4b1d      	ldr	r3, [pc, #116]	; (80002e4 <MX_TIM2_Init+0x94>)
  800026e:	f04f 4280 	mov.w	r2, #1073741824	; 0x40000000
  8000272:	601a      	str	r2, [r3, #0]
+  htim2.Init.Prescaler = 7999;
  8000274:	4b1b      	ldr	r3, [pc, #108]	; (80002e4 <MX_TIM2_Init+0x94>)
  8000276:	f641 723f 	movw	r2, #7999	; 0x1f3f
  800027a:	605a      	str	r2, [r3, #4]
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
  800027c:	4b19      	ldr	r3, [pc, #100]	; (80002e4 <MX_TIM2_Init+0x94>)
  800027e:	2200      	movs	r2, #0
  8000280:	609a      	str	r2, [r3, #8]
+  htim2.Init.Period = 9;
  8000282:	4b18      	ldr	r3, [pc, #96]	; (80002e4 <MX_TIM2_Init+0x94>)
  8000284:	2209      	movs	r2, #9
  8000286:	60da      	str	r2, [r3, #12]
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
  8000288:	4b16      	ldr	r3, [pc, #88]	; (80002e4 <MX_TIM2_Init+0x94>)
  800028a:	2200      	movs	r2, #0
  800028c:	611a      	str	r2, [r3, #16]
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
  800028e:	4b15      	ldr	r3, [pc, #84]	; (80002e4 <MX_TIM2_Init+0x94>)
  8000290:	2200      	movs	r2, #0
  8000292:	619a      	str	r2, [r3, #24]
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
  8000294:	4813      	ldr	r0, [pc, #76]	; (80002e4 <MX_TIM2_Init+0x94>)
  8000296:	f001 fb7f 	bl	8001998 <HAL_TIM_Base_Init>
  800029a:	4603      	mov	r3, r0
  800029c:	2b00      	cmp	r3, #0
  800029e:	d001      	beq.n	80002a4 <MX_TIM2_Init+0x54>
+  {
+    Error_Handler();
  80002a0:	f000 f8cc 	bl	800043c <Error_Handler>
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
  80002a4:	f44f 5380 	mov.w	r3, #4096	; 0x1000
  80002a8:	60bb      	str	r3, [r7, #8]
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
  80002aa:	f107 0308 	add.w	r3, r7, #8
  80002ae:	4619      	mov	r1, r3
  80002b0:	480c      	ldr	r0, [pc, #48]	; (80002e4 <MX_TIM2_Init+0x94>)
@@ -227,11 +333,17 @@ Disassembly of section .text:
  80002b6:	4603      	mov	r3, r0
  80002b8:	2b00      	cmp	r3, #0
  80002ba:	d001      	beq.n	80002c0 <MX_TIM2_Init+0x70>
+  {
+    Error_Handler();
  80002bc:	f000 f8be 	bl	800043c <Error_Handler>
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
  80002c0:	2300      	movs	r3, #0
  80002c2:	603b      	str	r3, [r7, #0]
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
  80002c4:	2300      	movs	r3, #0
  80002c6:	607b      	str	r3, [r7, #4]
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
  80002c8:	463b      	mov	r3, r7
  80002ca:	4619      	mov	r1, r3
  80002cc:	4805      	ldr	r0, [pc, #20]	; (80002e4 <MX_TIM2_Init+0x94>)
@@ -239,7 +351,15 @@ Disassembly of section .text:
  80002d2:	4603      	mov	r3, r0
  80002d4:	2b00      	cmp	r3, #0
  80002d6:	d001      	beq.n	80002dc <MX_TIM2_Init+0x8c>
+  {
+    Error_Handler();
  80002d8:	f000 f8b0 	bl	800043c <Error_Handler>
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+
+}
  80002dc:	bf00      	nop
  80002de:	3718      	adds	r7, #24
  80002e0:	46bd      	mov	sp, r7
@@ -247,15 +367,25 @@ Disassembly of section .text:
  80002e4:	200000f8 	.word	0x200000f8
 
 080002e8 <MX_GPIO_Init>:
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
  80002e8:	b580      	push	{r7, lr}
  80002ea:	b086      	sub	sp, #24
  80002ec:	af00      	add	r7, sp, #0
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
  80002ee:	f107 0308 	add.w	r3, r7, #8
  80002f2:	2200      	movs	r2, #0
  80002f4:	601a      	str	r2, [r3, #0]
  80002f6:	605a      	str	r2, [r3, #4]
  80002f8:	609a      	str	r2, [r3, #8]
  80002fa:	60da      	str	r2, [r3, #12]
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
  80002fc:	4b20      	ldr	r3, [pc, #128]	; (8000380 <MX_GPIO_Init+0x98>)
  80002fe:	699b      	ldr	r3, [r3, #24]
  8000300:	4a1f      	ldr	r2, [pc, #124]	; (8000380 <MX_GPIO_Init+0x98>)
@@ -266,6 +396,7 @@ Disassembly of section .text:
  800030c:	f003 0304 	and.w	r3, r3, #4
  8000310:	607b      	str	r3, [r7, #4]
  8000312:	687b      	ldr	r3, [r7, #4]
+  __HAL_RCC_GPIOB_CLK_ENABLE();
  8000314:	4b1a      	ldr	r3, [pc, #104]	; (8000380 <MX_GPIO_Init+0x98>)
  8000316:	699b      	ldr	r3, [r3, #24]
  8000318:	4a19      	ldr	r2, [pc, #100]	; (8000380 <MX_GPIO_Init+0x98>)
@@ -276,38 +407,63 @@ Disassembly of section .text:
  8000324:	f003 0308 	and.w	r3, r3, #8
  8000328:	603b      	str	r3, [r7, #0]
  800032a:	683b      	ldr	r3, [r7, #0]
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LED_BLINKY_GPIO_Port, LED_BLINKY_Pin, GPIO_PIN_RESET);
  800032c:	2200      	movs	r2, #0
  800032e:	2120      	movs	r1, #32
  8000330:	4814      	ldr	r0, [pc, #80]	; (8000384 <MX_GPIO_Init+0x9c>)
  8000332:	f000 ff23 	bl	800117c <HAL_GPIO_WritePin>
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin
  8000336:	2200      	movs	r2, #0
  8000338:	213f      	movs	r1, #63	; 0x3f
  800033a:	4813      	ldr	r0, [pc, #76]	; (8000388 <MX_GPIO_Init+0xa0>)
  800033c:	f000 ff1e 	bl	800117c <HAL_GPIO_WritePin>
+                          |LED5_Pin|LED6_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : LED_BLINKY_Pin */
+  GPIO_InitStruct.Pin = LED_BLINKY_Pin;
  8000340:	2320      	movs	r3, #32
  8000342:	60bb      	str	r3, [r7, #8]
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
  8000344:	2301      	movs	r3, #1
  8000346:	60fb      	str	r3, [r7, #12]
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
  8000348:	2300      	movs	r3, #0
  800034a:	613b      	str	r3, [r7, #16]
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
  800034c:	2302      	movs	r3, #2
  800034e:	617b      	str	r3, [r7, #20]
+  HAL_GPIO_Init(LED_BLINKY_GPIO_Port, &GPIO_InitStruct);
  8000350:	f107 0308 	add.w	r3, r7, #8
  8000354:	4619      	mov	r1, r3
  8000356:	480b      	ldr	r0, [pc, #44]	; (8000384 <MX_GPIO_Init+0x9c>)
  8000358:	f000 fd96 	bl	8000e88 <HAL_GPIO_Init>
+
+  /*Configure GPIO pins : LED1_Pin LED2_Pin LED3_Pin LED4_Pin
+                           LED5_Pin LED6_Pin */
+  GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin
  800035c:	233f      	movs	r3, #63	; 0x3f
  800035e:	60bb      	str	r3, [r7, #8]
+                          |LED5_Pin|LED6_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
  8000360:	2301      	movs	r3, #1
  8000362:	60fb      	str	r3, [r7, #12]
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
  8000364:	2300      	movs	r3, #0
  8000366:	613b      	str	r3, [r7, #16]
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
  8000368:	2302      	movs	r3, #2
  800036a:	617b      	str	r3, [r7, #20]
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
  800036c:	f107 0308 	add.w	r3, r7, #8
  8000370:	4619      	mov	r1, r3
  8000372:	4805      	ldr	r0, [pc, #20]	; (8000388 <MX_GPIO_Init+0xa0>)
  8000374:	f000 fd88 	bl	8000e88 <HAL_GPIO_Init>
+
+}
  8000378:	bf00      	nop
  800037a:	3718      	adds	r7, #24
  800037c:	46bd      	mov	sp, r7
@@ -317,15 +473,22 @@ Disassembly of section .text:
  8000388:	40010c00 	.word	0x40010c00
 
 0800038c <HAL_TIM_PeriodElapsedCallback>:
+
+/* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  800038c:	b580      	push	{r7, lr}
  800038e:	b082      	sub	sp, #8
  8000390:	af00      	add	r7, sp, #0
  8000392:	6078      	str	r0, [r7, #4]
+    if (htim->Instance == TIM2) {
  8000394:	687b      	ldr	r3, [r7, #4]
  8000396:	681b      	ldr	r3, [r3, #0]
  8000398:	f1b3 4f80 	cmp.w	r3, #1073741824	; 0x40000000
  800039c:	d101      	bne.n	80003a2 <HAL_TIM_PeriodElapsedCallback+0x16>
+        SCH_Update();
  800039e:	f000 f89d 	bl	80004dc <SCH_Update>
+    }
+}
  80003a2:	bf00      	nop
  80003a4:	3708      	adds	r7, #8
  80003a6:	46bd      	mov	sp, r7
@@ -333,92 +496,144 @@ Disassembly of section .text:
 	...
 
 080003ac <Task_BlinkyLED>:
+void Task_BlinkyLED(void) {
  80003ac:	b580      	push	{r7, lr}
  80003ae:	af00      	add	r7, sp, #0
+	HAL_GPIO_TogglePin(LED_BLINKY_GPIO_Port, LED_BLINKY_Pin);
  80003b0:	2120      	movs	r1, #32
  80003b2:	4802      	ldr	r0, [pc, #8]	; (80003bc <Task_BlinkyLED+0x10>)
  80003b4:	f000 fefa 	bl	80011ac <HAL_GPIO_TogglePin>
+}
  80003b8:	bf00      	nop
  80003ba:	bd80      	pop	{r7, pc}
  80003bc:	40010800 	.word	0x40010800
 
 080003c0 <Task_500ms>:
+
+void Task_500ms(void) {
  80003c0:	b580      	push	{r7, lr}
  80003c2:	af00      	add	r7, sp, #0
+	HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
  80003c4:	2101      	movs	r1, #1
  80003c6:	4802      	ldr	r0, [pc, #8]	; (80003d0 <Task_500ms+0x10>)
  80003c8:	f000 fef0 	bl	80011ac <HAL_GPIO_TogglePin>
+}
  80003cc:	bf00      	nop
  80003ce:	bd80      	pop	{r7, pc}
  80003d0:	40010c00 	.word	0x40010c00
 
 080003d4 <Task_1000ms>:
+
+void Task_1000ms(void) {
  80003d4:	b580      	push	{r7, lr}
  80003d6:	af00      	add	r7, sp, #0
+	HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
  80003d8:	2102      	movs	r1, #2
  80003da:	4802      	ldr	r0, [pc, #8]	; (80003e4 <Task_1000ms+0x10>)
  80003dc:	f000 fee6 	bl	80011ac <HAL_GPIO_TogglePin>
+}
  80003e0:	bf00      	nop
  80003e2:	bd80      	pop	{r7, pc}
  80003e4:	40010c00 	.word	0x40010c00
 
 080003e8 <Task_1500ms>:
+
+void Task_1500ms(void) {
  80003e8:	b580      	push	{r7, lr}
  80003ea:	af00      	add	r7, sp, #0
+	HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
  80003ec:	2104      	movs	r1, #4
  80003ee:	4802      	ldr	r0, [pc, #8]	; (80003f8 <Task_1500ms+0x10>)
  80003f0:	f000 fedc 	bl	80011ac <HAL_GPIO_TogglePin>
+}
  80003f4:	bf00      	nop
  80003f6:	bd80      	pop	{r7, pc}
  80003f8:	40010c00 	.word	0x40010c00
 
 080003fc <Task_2000ms>:
+
+void Task_2000ms(void) {
  80003fc:	b580      	push	{r7, lr}
  80003fe:	af00      	add	r7, sp, #0
+	HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
  8000400:	2108      	movs	r1, #8
  8000402:	4802      	ldr	r0, [pc, #8]	; (800040c <Task_2000ms+0x10>)
  8000404:	f000 fed2 	bl	80011ac <HAL_GPIO_TogglePin>
+}
  8000408:	bf00      	nop
  800040a:	bd80      	pop	{r7, pc}
  800040c:	40010c00 	.word	0x40010c00
 
 08000410 <Task_2500ms>:
+
+void Task_2500ms(void) {
  8000410:	b580      	push	{r7, lr}
  8000412:	af00      	add	r7, sp, #0
+	HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
  8000414:	2110      	movs	r1, #16
  8000416:	4802      	ldr	r0, [pc, #8]	; (8000420 <Task_2500ms+0x10>)
  8000418:	f000 fec8 	bl	80011ac <HAL_GPIO_TogglePin>
+}
  800041c:	bf00      	nop
  800041e:	bd80      	pop	{r7, pc}
  8000420:	40010c00 	.word	0x40010c00
 
 08000424 <One_Shot_Task>:
+
+void One_Shot_Task(void) {
  8000424:	b580      	push	{r7, lr}
  8000426:	af00      	add	r7, sp, #0
+	HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, GPIO_PIN_SET);
  8000428:	2201      	movs	r2, #1
  800042a:	2120      	movs	r1, #32
  800042c:	4802      	ldr	r0, [pc, #8]	; (8000438 <One_Shot_Task+0x14>)
  800042e:	f000 fea5 	bl	800117c <HAL_GPIO_WritePin>
+}
  8000432:	bf00      	nop
  8000434:	bd80      	pop	{r7, pc}
  8000436:	bf00      	nop
  8000438:	40010c00 	.word	0x40010c00
 
 0800043c <Error_Handler>:
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
  800043c:	b480      	push	{r7}
  800043e:	af00      	add	r7, sp, #0
+  \details Disables IRQ interrupts by setting the I-bit in the CPSR.
+           Can only be executed in Privileged modes.
+ */
+__STATIC_FORCEINLINE void __disable_irq(void)
+{
+  __ASM volatile ("cpsid i" : : : "memory");
  8000440:	b672      	cpsid	i
+}
  8000442:	bf00      	nop
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
  8000444:	e7fe      	b.n	8000444 <Error_Handler+0x8>
 	...
 
 08000448 <SCH_Init>:
+static uint32_t newTaskID = 0;
+static uint32_t count_SCH_Update = 0;
+
+static uint32_t Get_New_Task_ID(void);
+
+void SCH_Init(void){
  8000448:	b480      	push	{r7}
  800044a:	b083      	sub	sp, #12
  800044c:	af00      	add	r7, sp, #0
+    for(uint8_t i = 0; i < SCH_MAX_TASKS; i++){
  800044e:	2300      	movs	r3, #0
  8000450:	71fb      	strb	r3, [r7, #7]
  8000452:	e033      	b.n	80004bc <SCH_Init+0x74>
+        SCH_tasks_G[i].pTask = 0;
  8000454:	79fa      	ldrb	r2, [r7, #7]
  8000456:	491f      	ldr	r1, [pc, #124]	; (80004d4 <SCH_Init+0x8c>)
  8000458:	4613      	mov	r3, r2
@@ -428,6 +643,7 @@ Disassembly of section .text:
  8000460:	440b      	add	r3, r1
  8000462:	2200      	movs	r2, #0
  8000464:	601a      	str	r2, [r3, #0]
+        SCH_tasks_G[i].Delay = 0;
  8000466:	79fa      	ldrb	r2, [r7, #7]
  8000468:	491a      	ldr	r1, [pc, #104]	; (80004d4 <SCH_Init+0x8c>)
  800046a:	4613      	mov	r3, r2
@@ -438,6 +654,7 @@ Disassembly of section .text:
  8000474:	3304      	adds	r3, #4
  8000476:	2200      	movs	r2, #0
  8000478:	601a      	str	r2, [r3, #0]
+        SCH_tasks_G[i].Period = 0;
  800047a:	79fa      	ldrb	r2, [r7, #7]
  800047c:	4915      	ldr	r1, [pc, #84]	; (80004d4 <SCH_Init+0x8c>)
  800047e:	4613      	mov	r3, r2
@@ -448,6 +665,7 @@ Disassembly of section .text:
  8000488:	3308      	adds	r3, #8
  800048a:	2200      	movs	r2, #0
  800048c:	601a      	str	r2, [r3, #0]
+        SCH_tasks_G[i].RunMe = 0;
  800048e:	79fa      	ldrb	r2, [r7, #7]
  8000490:	4910      	ldr	r1, [pc, #64]	; (80004d4 <SCH_Init+0x8c>)
  8000492:	4613      	mov	r3, r2
@@ -458,6 +676,7 @@ Disassembly of section .text:
  800049c:	330c      	adds	r3, #12
  800049e:	2200      	movs	r2, #0
  80004a0:	701a      	strb	r2, [r3, #0]
+        SCH_tasks_G[i].TaskID = 0;
  80004a2:	79fa      	ldrb	r2, [r7, #7]
  80004a4:	490b      	ldr	r1, [pc, #44]	; (80004d4 <SCH_Init+0x8c>)
  80004a6:	4613      	mov	r3, r2
@@ -468,15 +687,19 @@ Disassembly of section .text:
  80004b0:	3310      	adds	r3, #16
  80004b2:	2200      	movs	r2, #0
  80004b4:	601a      	str	r2, [r3, #0]
+    for(uint8_t i = 0; i < SCH_MAX_TASKS; i++){
  80004b6:	79fb      	ldrb	r3, [r7, #7]
  80004b8:	3301      	adds	r3, #1
  80004ba:	71fb      	strb	r3, [r7, #7]
  80004bc:	79fb      	ldrb	r3, [r7, #7]
  80004be:	2b09      	cmp	r3, #9
  80004c0:	d9c8      	bls.n	8000454 <SCH_Init+0xc>
+    }
+    newTaskID = 1;
  80004c2:	4b05      	ldr	r3, [pc, #20]	; (80004d8 <SCH_Init+0x90>)
  80004c4:	2201      	movs	r2, #1
  80004c6:	601a      	str	r2, [r3, #0]
+}
  80004c8:	bf00      	nop
  80004ca:	370c      	adds	r7, #12
  80004cc:	46bd      	mov	sp, r7
@@ -487,13 +710,18 @@ Disassembly of section .text:
  80004d8:	200000f0 	.word	0x200000f0
 
 080004dc <SCH_Update>:
+
+void SCH_Update(void){
  80004dc:	b480      	push	{r7}
  80004de:	af00      	add	r7, sp, #0
+	// Check if there is a task at this location
+	count_SCH_Update ++;
  80004e0:	4b10      	ldr	r3, [pc, #64]	; (8000524 <SCH_Update+0x48>)
  80004e2:	681b      	ldr	r3, [r3, #0]
  80004e4:	3301      	adds	r3, #1
  80004e6:	4a0f      	ldr	r2, [pc, #60]	; (8000524 <SCH_Update+0x48>)
  80004e8:	6013      	str	r3, [r2, #0]
+	if (SCH_tasks_G[0].pTask && SCH_tasks_G[0].RunMe == 0) {
  80004ea:	4b0f      	ldr	r3, [pc, #60]	; (8000528 <SCH_Update+0x4c>)
  80004ec:	681b      	ldr	r3, [r3, #0]
  80004ee:	2b00      	cmp	r3, #0
@@ -502,22 +730,30 @@ Disassembly of section .text:
  80004f4:	7b1b      	ldrb	r3, [r3, #12]
  80004f6:	2b00      	cmp	r3, #0
  80004f8:	d10f      	bne.n	800051a <SCH_Update+0x3e>
+		if(SCH_tasks_G[0].Delay > 0){
  80004fa:	4b0b      	ldr	r3, [pc, #44]	; (8000528 <SCH_Update+0x4c>)
  80004fc:	685b      	ldr	r3, [r3, #4]
  80004fe:	2b00      	cmp	r3, #0
  8000500:	d004      	beq.n	800050c <SCH_Update+0x30>
+			SCH_tasks_G[0].Delay = SCH_tasks_G[0].Delay - 1;
  8000502:	4b09      	ldr	r3, [pc, #36]	; (8000528 <SCH_Update+0x4c>)
  8000504:	685b      	ldr	r3, [r3, #4]
  8000506:	3b01      	subs	r3, #1
  8000508:	4a07      	ldr	r2, [pc, #28]	; (8000528 <SCH_Update+0x4c>)
  800050a:	6053      	str	r3, [r2, #4]
+		}
+		if (SCH_tasks_G[0].Delay == 0) {
  800050c:	4b06      	ldr	r3, [pc, #24]	; (8000528 <SCH_Update+0x4c>)
  800050e:	685b      	ldr	r3, [r3, #4]
  8000510:	2b00      	cmp	r3, #0
  8000512:	d102      	bne.n	800051a <SCH_Update+0x3e>
+			SCH_tasks_G[0].RunMe = 1;
  8000514:	4b04      	ldr	r3, [pc, #16]	; (8000528 <SCH_Update+0x4c>)
  8000516:	2201      	movs	r2, #1
  8000518:	731a      	strb	r2, [r3, #12]
+		}
+	}
+}
  800051a:	bf00      	nop
  800051c:	46bd      	mov	sp, r7
  800051e:	bc80      	pop	{r7}
@@ -527,21 +763,28 @@ Disassembly of section .text:
  8000528:	20000028 	.word	0x20000028
 
 0800052c <SCH_Add_Task>:
+uint32_t SCH_Add_Task(void (* pFunction)(), uint32_t DELAY, uint32_t PERIOD){
  800052c:	b590      	push	{r4, r7, lr}
  800052e:	b089      	sub	sp, #36	; 0x24
  8000530:	af00      	add	r7, sp, #0
  8000532:	60f8      	str	r0, [r7, #12]
  8000534:	60b9      	str	r1, [r7, #8]
  8000536:	607a      	str	r2, [r7, #4]
+	uint8_t newTaskIndex = 0;
  8000538:	2300      	movs	r3, #0
  800053a:	77fb      	strb	r3, [r7, #31]
+	uint32_t sumDelay = 0;
  800053c:	2300      	movs	r3, #0
  800053e:	61bb      	str	r3, [r7, #24]
+	uint32_t newDelay = 0;
  8000540:	2300      	movs	r3, #0
  8000542:	613b      	str	r3, [r7, #16]
+
+	for(newTaskIndex = 0; newTaskIndex < SCH_MAX_TASKS; newTaskIndex ++){
  8000544:	2300      	movs	r3, #0
  8000546:	77fb      	strb	r3, [r7, #31]
  8000548:	e133      	b.n	80007b2 <SCH_Add_Task+0x286>
+		sumDelay = sumDelay + SCH_tasks_G[newTaskIndex].Delay;
  800054a:	7ffa      	ldrb	r2, [r7, #31]
  800054c:	49a1      	ldr	r1, [pc, #644]	; (80007d4 <SCH_Add_Task+0x2a8>)
  800054e:	4613      	mov	r3, r2
@@ -554,10 +797,12 @@ Disassembly of section .text:
  800055c:	69ba      	ldr	r2, [r7, #24]
  800055e:	4413      	add	r3, r2
  8000560:	61bb      	str	r3, [r7, #24]
+		if(sumDelay > DELAY){
  8000562:	69ba      	ldr	r2, [r7, #24]
  8000564:	68bb      	ldr	r3, [r7, #8]
  8000566:	429a      	cmp	r2, r3
  8000568:	f240 80c1 	bls.w	80006ee <SCH_Add_Task+0x1c2>
+			newDelay = DELAY - (sumDelay - SCH_tasks_G[newTaskIndex].Delay);
  800056c:	7ffa      	ldrb	r2, [r7, #31]
  800056e:	4999      	ldr	r1, [pc, #612]	; (80007d4 <SCH_Add_Task+0x2a8>)
  8000570:	4613      	mov	r3, r2
@@ -572,6 +817,7 @@ Disassembly of section .text:
  8000582:	68ba      	ldr	r2, [r7, #8]
  8000584:	4413      	add	r3, r2
  8000586:	613b      	str	r3, [r7, #16]
+			SCH_tasks_G[newTaskIndex].Delay = sumDelay - DELAY;
  8000588:	7ffa      	ldrb	r2, [r7, #31]
  800058a:	69b9      	ldr	r1, [r7, #24]
  800058c:	68bb      	ldr	r3, [r7, #8]
@@ -584,9 +830,13 @@ Disassembly of section .text:
  800059a:	4403      	add	r3, r0
  800059c:	3304      	adds	r3, #4
  800059e:	6019      	str	r1, [r3, #0]
+			for(uint8_t i = SCH_MAX_TASKS - 1; i > newTaskIndex; i --){
  80005a0:	2309      	movs	r3, #9
  80005a2:	75fb      	strb	r3, [r7, #23]
  80005a4:	e04c      	b.n	8000640 <SCH_Add_Task+0x114>
+//				if(SCH_tasks_G[i - 1].pTask != 0)
+				{
+					SCH_tasks_G[i].pTask = SCH_tasks_G[i - 1].pTask;
  80005a6:	7dfb      	ldrb	r3, [r7, #23]
  80005a8:	1e59      	subs	r1, r3, #1
  80005aa:	7dfa      	ldrb	r2, [r7, #23]
@@ -604,6 +854,7 @@ Disassembly of section .text:
  80005c2:	009b      	lsls	r3, r3, #2
  80005c4:	4403      	add	r3, r0
  80005c6:	6019      	str	r1, [r3, #0]
+					SCH_tasks_G[i].Period = SCH_tasks_G[i - 1].Period;
  80005c8:	7dfb      	ldrb	r3, [r7, #23]
  80005ca:	1e59      	subs	r1, r3, #1
  80005cc:	7dfa      	ldrb	r2, [r7, #23]
@@ -623,6 +874,7 @@ Disassembly of section .text:
  80005e8:	4403      	add	r3, r0
  80005ea:	3308      	adds	r3, #8
  80005ec:	6019      	str	r1, [r3, #0]
+					SCH_tasks_G[i].Delay = SCH_tasks_G[i - 1].Delay;
  80005ee:	7dfb      	ldrb	r3, [r7, #23]
  80005f0:	1e59      	subs	r1, r3, #1
  80005f2:	7dfa      	ldrb	r2, [r7, #23]
@@ -642,6 +894,8 @@ Disassembly of section .text:
  800060e:	4403      	add	r3, r0
  8000610:	3304      	adds	r3, #4
  8000612:	6019      	str	r1, [r3, #0]
+//					SCH_tasks_G[i].RunMe = SCH_tasks_G[i - 1].RunMe;
+					SCH_tasks_G[i].TaskID = SCH_tasks_G[i - 1].TaskID;
  8000614:	7dfb      	ldrb	r3, [r7, #23]
  8000616:	1e59      	subs	r1, r3, #1
  8000618:	7dfa      	ldrb	r2, [r7, #23]
@@ -661,6 +915,7 @@ Disassembly of section .text:
  8000634:	4403      	add	r3, r0
  8000636:	3310      	adds	r3, #16
  8000638:	6019      	str	r1, [r3, #0]
+			for(uint8_t i = SCH_MAX_TASKS - 1; i > newTaskIndex; i --){
  800063a:	7dfb      	ldrb	r3, [r7, #23]
  800063c:	3b01      	subs	r3, #1
  800063e:	75fb      	strb	r3, [r7, #23]
@@ -668,6 +923,9 @@ Disassembly of section .text:
  8000642:	7ffb      	ldrb	r3, [r7, #31]
  8000644:	429a      	cmp	r2, r3
  8000646:	d8ae      	bhi.n	80005a6 <SCH_Add_Task+0x7a>
+				}
+			}
+			SCH_tasks_G[newTaskIndex].pTask = pFunction;
  8000648:	7ffa      	ldrb	r2, [r7, #31]
  800064a:	4962      	ldr	r1, [pc, #392]	; (80007d4 <SCH_Add_Task+0x2a8>)
  800064c:	4613      	mov	r3, r2
@@ -677,6 +935,7 @@ Disassembly of section .text:
  8000654:	440b      	add	r3, r1
  8000656:	68fa      	ldr	r2, [r7, #12]
  8000658:	601a      	str	r2, [r3, #0]
+			SCH_tasks_G[newTaskIndex].Delay = newDelay;
  800065a:	7ffa      	ldrb	r2, [r7, #31]
  800065c:	495d      	ldr	r1, [pc, #372]	; (80007d4 <SCH_Add_Task+0x2a8>)
  800065e:	4613      	mov	r3, r2
@@ -687,6 +946,7 @@ Disassembly of section .text:
  8000668:	3304      	adds	r3, #4
  800066a:	693a      	ldr	r2, [r7, #16]
  800066c:	601a      	str	r2, [r3, #0]
+			SCH_tasks_G[newTaskIndex].Period = PERIOD;
  800066e:	7ffa      	ldrb	r2, [r7, #31]
  8000670:	4958      	ldr	r1, [pc, #352]	; (80007d4 <SCH_Add_Task+0x2a8>)
  8000672:	4613      	mov	r3, r2
@@ -697,6 +957,7 @@ Disassembly of section .text:
  800067c:	3308      	adds	r3, #8
  800067e:	687a      	ldr	r2, [r7, #4]
  8000680:	601a      	str	r2, [r3, #0]
+			if(SCH_tasks_G[newTaskIndex].Delay == 0){
  8000682:	7ffa      	ldrb	r2, [r7, #31]
  8000684:	4953      	ldr	r1, [pc, #332]	; (80007d4 <SCH_Add_Task+0x2a8>)
  8000686:	4613      	mov	r3, r2
@@ -708,6 +969,7 @@ Disassembly of section .text:
  8000692:	681b      	ldr	r3, [r3, #0]
  8000694:	2b00      	cmp	r3, #0
  8000696:	d10a      	bne.n	80006ae <SCH_Add_Task+0x182>
+				SCH_tasks_G[newTaskIndex].RunMe = 1;
  8000698:	7ffa      	ldrb	r2, [r7, #31]
  800069a:	494e      	ldr	r1, [pc, #312]	; (80007d4 <SCH_Add_Task+0x2a8>)
  800069c:	4613      	mov	r3, r2
@@ -719,6 +981,8 @@ Disassembly of section .text:
  80006a8:	2201      	movs	r2, #1
  80006aa:	701a      	strb	r2, [r3, #0]
  80006ac:	e009      	b.n	80006c2 <SCH_Add_Task+0x196>
+			} else {
+				SCH_tasks_G[newTaskIndex].RunMe = 0;
  80006ae:	7ffa      	ldrb	r2, [r7, #31]
  80006b0:	4948      	ldr	r1, [pc, #288]	; (80007d4 <SCH_Add_Task+0x2a8>)
  80006b2:	4613      	mov	r3, r2
@@ -729,6 +993,8 @@ Disassembly of section .text:
  80006bc:	330c      	adds	r3, #12
  80006be:	2200      	movs	r2, #0
  80006c0:	701a      	strb	r2, [r3, #0]
+			}
+			SCH_tasks_G[newTaskIndex].TaskID = Get_New_Task_ID();
  80006c2:	7ffc      	ldrb	r4, [r7, #31]
  80006c4:	f000 f9a4 	bl	8000a10 <Get_New_Task_ID>
  80006c8:	4602      	mov	r2, r0
@@ -740,6 +1006,7 @@ Disassembly of section .text:
  80006d4:	440b      	add	r3, r1
  80006d6:	3310      	adds	r3, #16
  80006d8:	601a      	str	r2, [r3, #0]
+			return SCH_tasks_G[newTaskIndex].TaskID;
  80006da:	7ffa      	ldrb	r2, [r7, #31]
  80006dc:	493d      	ldr	r1, [pc, #244]	; (80007d4 <SCH_Add_Task+0x2a8>)
  80006de:	4613      	mov	r3, r2
@@ -750,6 +1017,8 @@ Disassembly of section .text:
  80006e8:	3310      	adds	r3, #16
  80006ea:	681b      	ldr	r3, [r3, #0]
  80006ec:	e06e      	b.n	80007cc <SCH_Add_Task+0x2a0>
+		} else {
+			if(SCH_tasks_G[newTaskIndex].pTask == 0x0000){
  80006ee:	7ffa      	ldrb	r2, [r7, #31]
  80006f0:	4938      	ldr	r1, [pc, #224]	; (80007d4 <SCH_Add_Task+0x2a8>)
  80006f2:	4613      	mov	r3, r2
@@ -760,6 +1029,7 @@ Disassembly of section .text:
  80006fc:	681b      	ldr	r3, [r3, #0]
  80006fe:	2b00      	cmp	r3, #0
  8000700:	d154      	bne.n	80007ac <SCH_Add_Task+0x280>
+				SCH_tasks_G[newTaskIndex].pTask = pFunction;
  8000702:	7ffa      	ldrb	r2, [r7, #31]
  8000704:	4933      	ldr	r1, [pc, #204]	; (80007d4 <SCH_Add_Task+0x2a8>)
  8000706:	4613      	mov	r3, r2
@@ -769,6 +1039,7 @@ Disassembly of section .text:
  800070e:	440b      	add	r3, r1
  8000710:	68fa      	ldr	r2, [r7, #12]
  8000712:	601a      	str	r2, [r3, #0]
+				SCH_tasks_G[newTaskIndex].Delay = DELAY - sumDelay;
  8000714:	7ffa      	ldrb	r2, [r7, #31]
  8000716:	68b9      	ldr	r1, [r7, #8]
  8000718:	69bb      	ldr	r3, [r7, #24]
@@ -781,6 +1052,7 @@ Disassembly of section .text:
  8000726:	4403      	add	r3, r0
  8000728:	3304      	adds	r3, #4
  800072a:	6019      	str	r1, [r3, #0]
+				SCH_tasks_G[newTaskIndex].Period = PERIOD;
  800072c:	7ffa      	ldrb	r2, [r7, #31]
  800072e:	4929      	ldr	r1, [pc, #164]	; (80007d4 <SCH_Add_Task+0x2a8>)
  8000730:	4613      	mov	r3, r2
@@ -791,6 +1063,7 @@ Disassembly of section .text:
  800073a:	3308      	adds	r3, #8
  800073c:	687a      	ldr	r2, [r7, #4]
  800073e:	601a      	str	r2, [r3, #0]
+				if(SCH_tasks_G[newTaskIndex].Delay == 0){
  8000740:	7ffa      	ldrb	r2, [r7, #31]
  8000742:	4924      	ldr	r1, [pc, #144]	; (80007d4 <SCH_Add_Task+0x2a8>)
  8000744:	4613      	mov	r3, r2
@@ -802,6 +1075,7 @@ Disassembly of section .text:
  8000750:	681b      	ldr	r3, [r3, #0]
  8000752:	2b00      	cmp	r3, #0
  8000754:	d10a      	bne.n	800076c <SCH_Add_Task+0x240>
+					SCH_tasks_G[newTaskIndex].RunMe = 1;
  8000756:	7ffa      	ldrb	r2, [r7, #31]
  8000758:	491e      	ldr	r1, [pc, #120]	; (80007d4 <SCH_Add_Task+0x2a8>)
  800075a:	4613      	mov	r3, r2
@@ -813,6 +1087,8 @@ Disassembly of section .text:
  8000766:	2201      	movs	r2, #1
  8000768:	701a      	strb	r2, [r3, #0]
  800076a:	e009      	b.n	8000780 <SCH_Add_Task+0x254>
+				} else {
+					SCH_tasks_G[newTaskIndex].RunMe = 0;
  800076c:	7ffa      	ldrb	r2, [r7, #31]
  800076e:	4919      	ldr	r1, [pc, #100]	; (80007d4 <SCH_Add_Task+0x2a8>)
  8000770:	4613      	mov	r3, r2
@@ -823,6 +1099,8 @@ Disassembly of section .text:
  800077a:	330c      	adds	r3, #12
  800077c:	2200      	movs	r2, #0
  800077e:	701a      	strb	r2, [r3, #0]
+				}
+				SCH_tasks_G[newTaskIndex].TaskID = Get_New_Task_ID();
  8000780:	7ffc      	ldrb	r4, [r7, #31]
  8000782:	f000 f945 	bl	8000a10 <Get_New_Task_ID>
  8000786:	4602      	mov	r2, r0
@@ -834,6 +1112,7 @@ Disassembly of section .text:
  8000792:	440b      	add	r3, r1
  8000794:	3310      	adds	r3, #16
  8000796:	601a      	str	r2, [r3, #0]
+				return SCH_tasks_G[newTaskIndex].TaskID;
  8000798:	7ffa      	ldrb	r2, [r7, #31]
  800079a:	490e      	ldr	r1, [pc, #56]	; (80007d4 <SCH_Add_Task+0x2a8>)
  800079c:	4613      	mov	r3, r2
@@ -844,12 +1123,17 @@ Disassembly of section .text:
  80007a6:	3310      	adds	r3, #16
  80007a8:	681b      	ldr	r3, [r3, #0]
  80007aa:	e00f      	b.n	80007cc <SCH_Add_Task+0x2a0>
+	for(newTaskIndex = 0; newTaskIndex < SCH_MAX_TASKS; newTaskIndex ++){
  80007ac:	7ffb      	ldrb	r3, [r7, #31]
  80007ae:	3301      	adds	r3, #1
  80007b0:	77fb      	strb	r3, [r7, #31]
  80007b2:	7ffb      	ldrb	r3, [r7, #31]
  80007b4:	2b09      	cmp	r3, #9
  80007b6:	f67f aec8 	bls.w	800054a <SCH_Add_Task+0x1e>
+			}
+		}
+	}
+	return SCH_tasks_G[newTaskIndex].TaskID;
  80007ba:	7ffa      	ldrb	r2, [r7, #31]
  80007bc:	4905      	ldr	r1, [pc, #20]	; (80007d4 <SCH_Add_Task+0x2a8>)
  80007be:	4613      	mov	r3, r2
@@ -859,6 +1143,7 @@ Disassembly of section .text:
  80007c6:	440b      	add	r3, r1
  80007c8:	3310      	adds	r3, #16
  80007ca:	681b      	ldr	r3, [r3, #0]
+}
  80007cc:	4618      	mov	r0, r3
  80007ce:	3724      	adds	r7, #36	; 0x24
  80007d0:	46bd      	mov	sp, r7
@@ -866,18 +1151,27 @@ Disassembly of section .text:
  80007d4:	20000028 	.word	0x20000028
 
 080007d8 <SCH_Delete_Task>:
+
+
+uint8_t SCH_Delete_Task(uint32_t taskID){
  80007d8:	b480      	push	{r7}
  80007da:	b085      	sub	sp, #20
  80007dc:	af00      	add	r7, sp, #0
  80007de:	6078      	str	r0, [r7, #4]
+	uint8_t Return_code  = 0;
  80007e0:	2300      	movs	r3, #0
  80007e2:	737b      	strb	r3, [r7, #13]
+	uint8_t taskIndex;
+	uint8_t j;
+	if(taskID != NO_TASK_ID){
  80007e4:	687b      	ldr	r3, [r7, #4]
  80007e6:	2b00      	cmp	r3, #0
  80007e8:	f000 80e2 	beq.w	80009b0 <SCH_Delete_Task+0x1d8>
+		for(taskIndex = 0; taskIndex < SCH_MAX_TASKS; taskIndex ++){
  80007ec:	2300      	movs	r3, #0
  80007ee:	73fb      	strb	r3, [r7, #15]
  80007f0:	e0da      	b.n	80009a8 <SCH_Delete_Task+0x1d0>
+			if(SCH_tasks_G[taskIndex].TaskID == taskID){
  80007f2:	7bfa      	ldrb	r2, [r7, #15]
  80007f4:	4971      	ldr	r1, [pc, #452]	; (80009bc <SCH_Delete_Task+0x1e4>)
  80007f6:	4613      	mov	r3, r2
@@ -890,14 +1184,17 @@ Disassembly of section .text:
  8000804:	687a      	ldr	r2, [r7, #4]
  8000806:	429a      	cmp	r2, r3
  8000808:	f040 80cb 	bne.w	80009a2 <SCH_Delete_Task+0x1ca>
+				Return_code = 1;
  800080c:	2301      	movs	r3, #1
  800080e:	737b      	strb	r3, [r7, #13]
+				if(taskIndex != 0 && taskIndex < SCH_MAX_TASKS - 1){
  8000810:	7bfb      	ldrb	r3, [r7, #15]
  8000812:	2b00      	cmp	r3, #0
  8000814:	d02b      	beq.n	800086e <SCH_Delete_Task+0x96>
  8000816:	7bfb      	ldrb	r3, [r7, #15]
  8000818:	2b08      	cmp	r3, #8
  800081a:	d828      	bhi.n	800086e <SCH_Delete_Task+0x96>
+					if(SCH_tasks_G[taskIndex+1].pTask != 0x0000){
  800081c:	7bfb      	ldrb	r3, [r7, #15]
  800081e:	1c5a      	adds	r2, r3, #1
  8000820:	4966      	ldr	r1, [pc, #408]	; (80009bc <SCH_Delete_Task+0x1e4>)
@@ -909,6 +1206,7 @@ Disassembly of section .text:
  800082c:	681b      	ldr	r3, [r3, #0]
  800082e:	2b00      	cmp	r3, #0
  8000830:	d01d      	beq.n	800086e <SCH_Delete_Task+0x96>
+						SCH_tasks_G[taskIndex+1].Delay += SCH_tasks_G[taskIndex].Delay;
  8000832:	7bfb      	ldrb	r3, [r7, #15]
  8000834:	1c5a      	adds	r2, r3, #1
  8000836:	4961      	ldr	r1, [pc, #388]	; (80009bc <SCH_Delete_Task+0x1e4>)
@@ -939,9 +1237,14 @@ Disassembly of section .text:
  8000868:	4403      	add	r3, r0
  800086a:	3304      	adds	r3, #4
  800086c:	6019      	str	r1, [r3, #0]
+					}
+				}
+
+				for( j = taskIndex; j < SCH_MAX_TASKS - 1; j ++){
  800086e:	7bfb      	ldrb	r3, [r7, #15]
  8000870:	73bb      	strb	r3, [r7, #14]
  8000872:	e060      	b.n	8000936 <SCH_Delete_Task+0x15e>
+					SCH_tasks_G[j].pTask = SCH_tasks_G[j+1].pTask;
  8000874:	7bbb      	ldrb	r3, [r7, #14]
  8000876:	1c59      	adds	r1, r3, #1
  8000878:	7bba      	ldrb	r2, [r7, #14]
@@ -959,6 +1262,7 @@ Disassembly of section .text:
  8000890:	009b      	lsls	r3, r3, #2
  8000892:	4403      	add	r3, r0
  8000894:	6019      	str	r1, [r3, #0]
+					SCH_tasks_G[j].Period = SCH_tasks_G[j+1].Period;
  8000896:	7bbb      	ldrb	r3, [r7, #14]
  8000898:	1c59      	adds	r1, r3, #1
  800089a:	7bba      	ldrb	r2, [r7, #14]
@@ -978,6 +1282,7 @@ Disassembly of section .text:
  80008b6:	4403      	add	r3, r0
  80008b8:	3308      	adds	r3, #8
  80008ba:	6019      	str	r1, [r3, #0]
+					SCH_tasks_G[j].Delay = SCH_tasks_G[j+1].Delay;
  80008bc:	7bbb      	ldrb	r3, [r7, #14]
  80008be:	1c59      	adds	r1, r3, #1
  80008c0:	7bba      	ldrb	r2, [r7, #14]
@@ -997,6 +1302,7 @@ Disassembly of section .text:
  80008dc:	4403      	add	r3, r0
  80008de:	3304      	adds	r3, #4
  80008e0:	6019      	str	r1, [r3, #0]
+					SCH_tasks_G[j].RunMe = SCH_tasks_G[j+1].RunMe;
  80008e2:	7bbb      	ldrb	r3, [r7, #14]
  80008e4:	1c59      	adds	r1, r3, #1
  80008e6:	7bba      	ldrb	r2, [r7, #14]
@@ -1017,6 +1323,7 @@ Disassembly of section .text:
  8000904:	330c      	adds	r3, #12
  8000906:	4602      	mov	r2, r0
  8000908:	701a      	strb	r2, [r3, #0]
+					SCH_tasks_G[j].TaskID = SCH_tasks_G[j+1].TaskID;
  800090a:	7bbb      	ldrb	r3, [r7, #14]
  800090c:	1c59      	adds	r1, r3, #1
  800090e:	7bba      	ldrb	r2, [r7, #14]
@@ -1036,12 +1343,15 @@ Disassembly of section .text:
  800092a:	4403      	add	r3, r0
  800092c:	3310      	adds	r3, #16
  800092e:	6019      	str	r1, [r3, #0]
+				for( j = taskIndex; j < SCH_MAX_TASKS - 1; j ++){
  8000930:	7bbb      	ldrb	r3, [r7, #14]
  8000932:	3301      	adds	r3, #1
  8000934:	73bb      	strb	r3, [r7, #14]
  8000936:	7bbb      	ldrb	r3, [r7, #14]
  8000938:	2b08      	cmp	r3, #8
  800093a:	d99b      	bls.n	8000874 <SCH_Delete_Task+0x9c>
+				}
+				SCH_tasks_G[j].pTask = 0;
  800093c:	7bba      	ldrb	r2, [r7, #14]
  800093e:	491f      	ldr	r1, [pc, #124]	; (80009bc <SCH_Delete_Task+0x1e4>)
  8000940:	4613      	mov	r3, r2
@@ -1051,6 +1361,7 @@ Disassembly of section .text:
  8000948:	440b      	add	r3, r1
  800094a:	2200      	movs	r2, #0
  800094c:	601a      	str	r2, [r3, #0]
+				SCH_tasks_G[j].Period = 0;
  800094e:	7bba      	ldrb	r2, [r7, #14]
  8000950:	491a      	ldr	r1, [pc, #104]	; (80009bc <SCH_Delete_Task+0x1e4>)
  8000952:	4613      	mov	r3, r2
@@ -1061,6 +1372,7 @@ Disassembly of section .text:
  800095c:	3308      	adds	r3, #8
  800095e:	2200      	movs	r2, #0
  8000960:	601a      	str	r2, [r3, #0]
+				SCH_tasks_G[j].Delay = 0;
  8000962:	7bba      	ldrb	r2, [r7, #14]
  8000964:	4915      	ldr	r1, [pc, #84]	; (80009bc <SCH_Delete_Task+0x1e4>)
  8000966:	4613      	mov	r3, r2
@@ -1071,6 +1383,7 @@ Disassembly of section .text:
  8000970:	3304      	adds	r3, #4
  8000972:	2200      	movs	r2, #0
  8000974:	601a      	str	r2, [r3, #0]
+				SCH_tasks_G[j].RunMe = 0;
  8000976:	7bba      	ldrb	r2, [r7, #14]
  8000978:	4910      	ldr	r1, [pc, #64]	; (80009bc <SCH_Delete_Task+0x1e4>)
  800097a:	4613      	mov	r3, r2
@@ -1081,6 +1394,7 @@ Disassembly of section .text:
  8000984:	330c      	adds	r3, #12
  8000986:	2200      	movs	r2, #0
  8000988:	701a      	strb	r2, [r3, #0]
+				SCH_tasks_G[j].TaskID = 0;
  800098a:	7bba      	ldrb	r2, [r7, #14]
  800098c:	490b      	ldr	r1, [pc, #44]	; (80009bc <SCH_Delete_Task+0x1e4>)
  800098e:	4613      	mov	r3, r2
@@ -1091,15 +1405,22 @@ Disassembly of section .text:
  8000998:	3310      	adds	r3, #16
  800099a:	2200      	movs	r2, #0
  800099c:	601a      	str	r2, [r3, #0]
+				return Return_code;
  800099e:	7b7b      	ldrb	r3, [r7, #13]
  80009a0:	e007      	b.n	80009b2 <SCH_Delete_Task+0x1da>
+		for(taskIndex = 0; taskIndex < SCH_MAX_TASKS; taskIndex ++){
  80009a2:	7bfb      	ldrb	r3, [r7, #15]
  80009a4:	3301      	adds	r3, #1
  80009a6:	73fb      	strb	r3, [r7, #15]
  80009a8:	7bfb      	ldrb	r3, [r7, #15]
  80009aa:	2b09      	cmp	r3, #9
  80009ac:	f67f af21 	bls.w	80007f2 <SCH_Delete_Task+0x1a>
+			}
+		}
+	}
+	return Return_code; // return status
  80009b0:	7b7b      	ldrb	r3, [r7, #13]
+}
  80009b2:	4618      	mov	r0, r3
  80009b4:	3714      	adds	r7, #20
  80009b6:	46bd      	mov	sp, r7
@@ -1108,19 +1429,25 @@ Disassembly of section .text:
  80009bc:	20000028 	.word	0x20000028
 
 080009c0 <SCH_Dispatch_Tasks>:
+
+void SCH_Dispatch_Tasks(void){
  80009c0:	b5b0      	push	{r4, r5, r7, lr}
  80009c2:	b086      	sub	sp, #24
  80009c4:	af00      	add	r7, sp, #0
+	if(SCH_tasks_G[0].RunMe > 0) {
  80009c6:	4b11      	ldr	r3, [pc, #68]	; (8000a0c <SCH_Dispatch_Tasks+0x4c>)
  80009c8:	7b1b      	ldrb	r3, [r3, #12]
  80009ca:	2b00      	cmp	r3, #0
  80009cc:	d019      	beq.n	8000a02 <SCH_Dispatch_Tasks+0x42>
+		(*SCH_tasks_G[0].pTask)(); // Run the task
  80009ce:	4b0f      	ldr	r3, [pc, #60]	; (8000a0c <SCH_Dispatch_Tasks+0x4c>)
  80009d0:	681b      	ldr	r3, [r3, #0]
  80009d2:	4798      	blx	r3
+		SCH_tasks_G[0].RunMe = 0; // Reset / reduce RunMe flag
  80009d4:	4b0d      	ldr	r3, [pc, #52]	; (8000a0c <SCH_Dispatch_Tasks+0x4c>)
  80009d6:	2200      	movs	r2, #0
  80009d8:	731a      	strb	r2, [r3, #12]
+		sTask temtask = SCH_tasks_G[0];
  80009da:	4b0c      	ldr	r3, [pc, #48]	; (8000a0c <SCH_Dispatch_Tasks+0x4c>)
  80009dc:	1d3c      	adds	r4, r7, #4
  80009de:	461d      	mov	r5, r3
@@ -1128,17 +1455,23 @@ Disassembly of section .text:
  80009e2:	c40f      	stmia	r4!, {r0, r1, r2, r3}
  80009e4:	682b      	ldr	r3, [r5, #0]
  80009e6:	6023      	str	r3, [r4, #0]
+		SCH_Delete_Task(temtask.TaskID);
  80009e8:	697b      	ldr	r3, [r7, #20]
  80009ea:	4618      	mov	r0, r3
  80009ec:	f7ff fef4 	bl	80007d8 <SCH_Delete_Task>
+		if (temtask.Period != 0) {
  80009f0:	68fb      	ldr	r3, [r7, #12]
  80009f2:	2b00      	cmp	r3, #0
  80009f4:	d005      	beq.n	8000a02 <SCH_Dispatch_Tasks+0x42>
+			SCH_Add_Task(temtask.pTask, temtask.Period, temtask.Period);
  80009f6:	687b      	ldr	r3, [r7, #4]
  80009f8:	68f9      	ldr	r1, [r7, #12]
  80009fa:	68fa      	ldr	r2, [r7, #12]
  80009fc:	4618      	mov	r0, r3
  80009fe:	f7ff fd95 	bl	800052c <SCH_Add_Task>
+		}
+	}
+}
  8000a02:	bf00      	nop
  8000a04:	3718      	adds	r7, #24
  8000a06:	46bd      	mov	sp, r7
@@ -1147,24 +1480,32 @@ Disassembly of section .text:
  8000a0c:	20000028 	.word	0x20000028
 
 08000a10 <Get_New_Task_ID>:
+
+static uint32_t Get_New_Task_ID(void){
  8000a10:	b480      	push	{r7}
  8000a12:	af00      	add	r7, sp, #0
+	newTaskID++;
  8000a14:	4b09      	ldr	r3, [pc, #36]	; (8000a3c <Get_New_Task_ID+0x2c>)
  8000a16:	681b      	ldr	r3, [r3, #0]
  8000a18:	3301      	adds	r3, #1
  8000a1a:	4a08      	ldr	r2, [pc, #32]	; (8000a3c <Get_New_Task_ID+0x2c>)
  8000a1c:	6013      	str	r3, [r2, #0]
+	if(newTaskID == NO_TASK_ID){
  8000a1e:	4b07      	ldr	r3, [pc, #28]	; (8000a3c <Get_New_Task_ID+0x2c>)
  8000a20:	681b      	ldr	r3, [r3, #0]
  8000a22:	2b00      	cmp	r3, #0
  8000a24:	d104      	bne.n	8000a30 <Get_New_Task_ID+0x20>
+		newTaskID++;
  8000a26:	4b05      	ldr	r3, [pc, #20]	; (8000a3c <Get_New_Task_ID+0x2c>)
  8000a28:	681b      	ldr	r3, [r3, #0]
  8000a2a:	3301      	adds	r3, #1
  8000a2c:	4a03      	ldr	r2, [pc, #12]	; (8000a3c <Get_New_Task_ID+0x2c>)
  8000a2e:	6013      	str	r3, [r2, #0]
+	}
+	return newTaskID;
  8000a30:	4b02      	ldr	r3, [pc, #8]	; (8000a3c <Get_New_Task_ID+0x2c>)
  8000a32:	681b      	ldr	r3, [r3, #0]
+}
  8000a34:	4618      	mov	r0, r3
  8000a36:	46bd      	mov	sp, r7
  8000a38:	bc80      	pop	{r7}
